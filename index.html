@@ -52,8 +52,24 @@
 					<input type="button" id="button-select" value="Select video" />
 					<input type="button" id="button-remove" value="Remove" />
 			</center>
-			<input type="button" id="start-comparison" value="Start comparison" />
-			<input type="text" id="result-comparison" readonly />
+			<p>Mode:</p>
+			<div>
+				<input type="checkbox" id="psnr" name="psnr" checked>
+				<label for="psnr">PSNR</label>
+			</div>
+			<div>
+				<input type="checkbox" id="accurate" name="accurate">
+				<label for="accurate">Accurate</label>
+			</div>
+			<div>
+				<input type="checkbox" id="extract" name="extract">
+				<label for="extract">Extract images</label>
+			</div>
+			<center>
+				<input type="button" id="start-comparison" value="Start" />
+				<input type="button" id="stop-comparison" value="Stop" disabled/><br />
+				<input type="text" id="result-comparison" readonly />
+			</center>
     </div>
   </div>
 
@@ -62,16 +78,48 @@
     const remote = require('electron').remote;
     const electron = require('electron');
 		var exec = require('child_process').exec;
+		var psTree = require('ps-tree');
     const dialog = remote.dialog;
-    var fs = require('fs');
+		var fs = require('fs');
+		var child = null;
+		
+		var kill = function (pid, signal, callback) {
+			signal = signal || 'SIGKILL';
+			callback = callback || function () {};
+			var killTree = true;
+			if(killTree) {
+				psTree(pid, function (err, children) {
+					[pid].concat(
+						children.map(function (p) {
+							return p.PID;
+						})
+					).forEach(function (tpid) {
+						try { process.kill(tpid, signal) }
+						catch (ex) { }
+					});
+					callback();
+				});
+			} else {
+				try { process.kill(pid, signal) }
+				catch (ex) { }
+				callback();
+			}
+		};
 
     $(function(){
       var pathFiles = [];
 
       //Click handler on close button
       $("#pushButtonClose").click(function() {
-        var window = remote.getCurrentWindow();
-        window.close();
+				if(child != null) {
+					kill(child.pid, 'SIGKILL', function() {
+						var window = remote.getCurrentWindow();
+						window.close();
+					});
+				} else {
+					var window = remote.getCurrentWindow();
+        	window.close();
+				}        
       });
 
       //Click handler on maximize button
@@ -100,7 +148,6 @@
         let file = dialog.showOpenDialog(options);
 				pathFiles.push(file[0]);
 				$("#display-select").append("<option>" + file[0] + "</option>");
-				console.log(pathFiles);
 			});
 			
 			//Click handler on button "Remove"
@@ -112,20 +159,57 @@
 				}
 			});
 			
-			//Click handler on button "Start comparison"
+			//Click handler on button "Start"
 			$("#start-comparison").click(function() {
 				var cmd = 'python ocs_comparison.py "' + pathFiles[0] + '" "' + pathFiles[1] + '"';
-				console.log("PSNR Comparison in progress...");
-				$("#result-comparison").val("PSNR Comparison in progress...");
-				exec(cmd, function(error, stdout, stderr) {
-						console.log('Number of differences: ' + parseInt(stdout.split(": ")[1]));
-						$("#result-comparison").val('Number of differences: ' + parseInt(stdout.split(": ")[1]));
-						if (error !== null) {
-								console.log('exec error: ' + error);
+				if(!$("#psnr").is(":checked")) {
+					cmd += " --psnr=no";
+				}	if($("#extract").is(":checked")) {
+					cmd += " --extract=yes";
+				} if($("#accurate").is(":checked")) {
+					cmd += " --mode=accurate";
+				}
+				$("#stop-comparison").prop('disabled', false);
+				$("#start-comparison").prop('disabled', true);
+				$("#result-comparison").val("In progress...");
+				child = exec(cmd, function(error, stdout, stderr) {
+						$("#stop-comparison").prop('disabled', true);
+						$("#start-comparison").prop('disabled', false);
+						if(error == null) {
+							$("#result-comparison").val('Number of differences: ' + parseInt(stdout.split(": ")[1]));
+						} else if (error !== null) {
+							console.log('exec error: ' + error);
+							$("#result-comparison").val('Failure');
 						}
 				});
 			});
 
-    });
+			//Click handler on button "Stop"
+			$("#stop-comparison").click(function() {
+				if(child != null) {
+					kill(child.pid);
+				}				
+				$("#stop-comparison").prop('disabled', true);
+				$("#start-comparison").prop('disabled', false);
+			});
+
+		});
+		
+		document.onkeydown = keydown; 
+
+		function keydown(evt)	{
+			if(evt.altKey && evt.keyCode==115) {
+				if(child != null) {
+					kill(child.pid, 'SIGKILL', function() {
+						var window = remote.getCurrentWindow();
+						window.close();
+					});
+				} else {
+					var window = remote.getCurrentWindow();
+        	window.close();
+				}
+				return false;
+			}
+		} 
   </script>
 </body>
