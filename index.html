@@ -4,7 +4,7 @@
   window.$ = window.jQuery = require('jquery');
 </script>
 <style>
-  #returnTitleBar {
+  #titleBar {
     top: 4px;
     background: black;
     height: 20px;
@@ -31,17 +31,6 @@
   }
   #pushButtonMinimize {
     right: 62px;
-  }  
-  .ocs-slider {
-    width: 100%;
-    height: 100% !important;
-  }
-  #frame-picker {
-    position: absolute;
-    top: 20px;
-    left: 0px;
-    width: 100px;
-    z-index: 2000;
   }
   body {
     overflow: hidden;
@@ -49,14 +38,22 @@
 </style>
 <body>
   <!-------------- Title Bar -------------->
-  <div id="returnTitleBar">
+  <div id="titleBar">
     <img id="pushButtonMinimize" onmouseover="this.src='assets/icons/MinimizeHover.png';" onmouseout="this.src='assets/icons/Minimize.png';" src="assets/icons/Minimize.png" draggable="false" />
     <img id="pushButtonMaximize" onmouseover="this.src='assets/icons/MaximizeHover.png';" onmouseout="this.src='assets/icons/Maximize.png';" src="assets/icons/Maximize.png" draggable="false" />
     <img id="pushButtonClose" onmouseover="this.src='assets/icons/CloseHover.png';" onmouseout="this.src='assets/icons/Close.png';" src="assets/icons/Close.png" draggable="false"  />
   </div>
   <div>
     <div id="select-video">
-      <input type="button" id="button-select" value="Select video" />
+			<select id="display-select" width="20%" multiple>
+			</select>
+			<br />
+			<center>
+					<input type="button" id="button-select" value="Select video" />
+					<input type="button" id="button-remove" value="Remove" />
+			</center>
+			<input type="button" id="start-comparison" value="Start comparison" />
+			<input type="text" id="result-comparison" readonly />
     </div>
   </div>
 
@@ -64,10 +61,13 @@
     'use strict'
     const remote = require('electron').remote;
     const electron = require('electron');
+		var exec = require('child_process').exec;
     const dialog = remote.dialog;
     var fs = require('fs');
 
     $(function(){
+      var pathFiles = [];
+
       //Click handler on close button
       $("#pushButtonClose").click(function() {
         var window = remote.getCurrentWindow();
@@ -90,39 +90,41 @@
         window.minimize();
       });
 
-      //Click handler on minimize button
+      //Click handler on button "Select video"
       $("#button-select").click(function() {
-        var pathTV = "";
-        var pathBD = "";
-        var img1 = $("#image1");
-        var img2 = $("#image2");
-        var filesTV = "";
-        var filesBD = "";
-
-        if(pathTV == "") {        
-          let options = {
-            title : "Select Video",
-            properties:["openFile"]
-          };
-
-          //Synchronous
-          let dir = dialog.showOpenDialog(options);
-          pathTV = dir[0];
-          filesTV = fs.readdirSync(pathTV);
-        } 
-
-        if(pathBD == "") {        
-          let options = {
-            title : "Select BD folder",
-            properties:["openFile"]
-          };
-
-          //Synchronous
-          let dir = dialog.showOpenDialog(options);
-          pathBD = dir[0];
-          filesBD = fs.readdirSync(pathBD);
-        }
-      });
+        let options = {
+          title : "Select a video file",
+          properties:["openFile"]
+        };
+        //Synchronous
+        let file = dialog.showOpenDialog(options);
+				pathFiles.push(file[0]);
+				$("#display-select").append("<option>" + file[0] + "</option>");
+				console.log(pathFiles);
+			});
+			
+			//Click handler on button "Remove"
+			$("#button-remove").click(function() {
+				var index = $.inArray($('#display-select').find(":selected").text(), pathFiles);
+				if(index > -1) {
+					pathFiles.splice(index, 1);
+					$('#display-select').find(":selected").remove();
+				}
+			});
+			
+			//Click handler on button "Start comparison"
+			$("#start-comparison").click(function() {
+				var cmd = 'python ocs_comparison.py "' + pathFiles[0] + '" "' + pathFiles[1] + '"';
+				console.log("PSNR Comparison in progress...");
+				$("#result-comparison").val("PSNR Comparison in progress...");
+				exec(cmd, function(error, stdout, stderr) {
+						console.log('Number of differences: ' + parseInt(stdout.split(": ")[1]));
+						$("#result-comparison").val('Number of differences: ' + parseInt(stdout.split(": ")[1]));
+						if (error !== null) {
+								console.log('exec error: ' + error);
+						}
+				});
+			});
 
     });
   </script>

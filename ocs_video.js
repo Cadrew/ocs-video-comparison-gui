@@ -19,7 +19,7 @@ function createWindow() {
 
 app.on('ready', () => {
 	createWindow();
-	mainWindow.setSize(1280, 740);
+	mainWindow.setSize(580, 740);
 	mainWindow.loadURL(`file:${__dirname}/index.html`); //Absolute path
 	mainWindow.center();
 });
