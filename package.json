@@ -1,0 +1,23 @@
+{
+  "name": "OCS-Video-Comparison",
+  "version": "1.0.0",
+  "description": "OCS-Video-Comparison",
+  "main": "ocs_video.js",
+  "scripts": {
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "author": "OCS",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "electron": "^1.8.3",
+    "electron-builder": "^20.8.1"
+  },
+  "build": {
+    "appId": "com.oniichansub.ocsvideocomparison"
+  },
+  "dependencies": {
+    "jquery": "^3.4.0",
+    "jquery.event.move": "^1.3.6"
+  }
+}

@@ -1,1 +1,1 @@
-# OCS-Video-Comparison-GUI
+# OCS Video Comparison GUI
