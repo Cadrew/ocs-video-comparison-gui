@@ -1,0 +1,79 @@
+#titleBar {
+  top: 4px;
+  background: black;
+  height: 20px;
+  -webkit-app-region: drag; /* Make the title bar draggable */
+  -webkit-user-select: none; /* Text selection disabled in the title bar */
+  z-index: 1000;
+}
+#pushButtonClose,
+#pushButtonMinimize {
+  position: absolute;
+  top: 2px;
+  border: none;
+  width: 14px;
+  height: 14px;
+  z-index: 1005;
+  -webkit-app-region: no-drag;
+}
+#pushButtonClose {
+  right: 12px;
+}
+#pushButtonMinimize {
+  right: 37px;
+}
+body {
+  overflow: hidden;
+}
+#button-add,
+#button-remove,
+#start-comparison,
+#stop-comparison,
+#result-comparison,
+#select-mode,
+#display-select {
+  position: absolute;
+}
+#display-select {
+  top: 25px;
+  left: 5px;
+  overflow: hidden;
+  width: 400px;
+}
+#button-add {
+  top: 25px;
+  left: 420px;
+  width: 100px;
+  height: 30px;
+}
+#button-remove {
+  top: 60px;
+  left: 420px;
+  width: 100px;
+  height: 30px;
+}
+#select-mode {
+  top: 110px;
+  left: 5px;
+  right: 5px;
+  height: 100;
+}
+#start-comparison {
+  top: 230px;
+  left: 150px;
+  width: 100px;
+  height: 30px;
+}
+#stop-comparison {
+  top: 230px;
+  left: 270px;
+  width: 100px;
+  height: 30px;
+}
+#result-comparison {
+  bottom: 0px;
+  height: 25px;
+  width: 100%;
+  border: none;
+  background: lavender;
+}

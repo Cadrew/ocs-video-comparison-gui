@@ -1,46 +1,12 @@
 <link href="css/foundation.css" rel="stylesheet" type="text/css" />
-<link href="css/twentytwenty.css" rel="stylesheet" type="text/css" />
+<link href="css/index.css" rel="stylesheet" type="text/css" />
 <script>
   window.$ = window.jQuery = require('jquery');
 </script>
-<style>
-  #titleBar {
-    top: 4px;
-    background: black;
-    height: 20px;
-    -webkit-app-region: drag; /* Make the title bar draggable */
-    -webkit-user-select: none; /* Text selection disabled in the title bar */
-    z-index: 1000;
-  }
-  #pushButtonClose,
-  #pushButtonMaximize,
-  #pushButtonMinimize {
-    position: absolute;
-    top: 2px;
-    border: none;
-    width: 14px;
-    height: 14px;
-    z-index: 1005;
-    -webkit-app-region: no-drag;
-  }
-  #pushButtonClose {
-    right: 12px;
-  }
-  #pushButtonMaximize {
-    right: 37px;
-  }
-  #pushButtonMinimize {
-    right: 62px;
-  }
-  body {
-    overflow: hidden;
-  }
-</style>
 <body>
   <!-------------- Title Bar -------------->
   <div id="titleBar">
     <img id="pushButtonMinimize" onmouseover="this.src='assets/icons/MinimizeHover.png';" onmouseout="this.src='assets/icons/Minimize.png';" src="assets/icons/Minimize.png" draggable="false" />
-    <img id="pushButtonMaximize" onmouseover="this.src='assets/icons/MaximizeHover.png';" onmouseout="this.src='assets/icons/Maximize.png';" src="assets/icons/Maximize.png" draggable="false" />
     <img id="pushButtonClose" onmouseover="this.src='assets/icons/CloseHover.png';" onmouseout="this.src='assets/icons/Close.png';" src="assets/icons/Close.png" draggable="false"  />
   </div>
   <div>
@@ -48,28 +14,26 @@
 			<select id="display-select" width="20%" multiple>
 			</select>
 			<br />
-			<center>
-					<input type="button" id="button-select" value="Select video" />
-					<input type="button" id="button-remove" value="Remove" />
-			</center>
-			<p>Mode:</p>
-			<div>
-				<input type="checkbox" id="psnr" name="psnr" checked>
-				<label for="psnr">PSNR</label>
-			</div>
-			<div>
-				<input type="checkbox" id="accurate" name="accurate">
-				<label for="accurate">Accurate</label>
-			</div>
-			<div>
-				<input type="checkbox" id="extract" name="extract">
-				<label for="extract">Extract images</label>
-			</div>
-			<center>
-				<input type="button" id="start-comparison" value="Start" />
-				<input type="button" id="stop-comparison" value="Stop" disabled/><br />
-				<input type="text" id="result-comparison" readonly />
-			</center>
+			<input type="button" id="button-add" value="Add video" />
+			<input type="button" id="button-remove" value="Remove" />
+			<fieldset id="select-mode">
+				<legend>Mode</legend>
+				<div>
+					<input type="checkbox" id="psnr" name="psnr" checked>
+					<label for="psnr">PSNR</label>
+				</div>
+				<div>
+					<input type="checkbox" id="accurate" name="accurate">
+					<label for="accurate">Accurate</label>
+				</div>
+				<div>
+					<input type="checkbox" id="extract" name="extract">
+					<label for="extract">Extract images</label>
+				</div>
+			</fieldset>
+			<input type="button" id="start-comparison" value="Start" />
+			<input type="button" id="stop-comparison" value="Stop" disabled/><br />
+			<input type="text" id="result-comparison" readonly />
     </div>
   </div>
 
@@ -122,24 +86,14 @@
 				}        
       });
 
-      //Click handler on maximize button
-      $("#pushButtonMaximize").click(function() {
-        var window = remote.getCurrentWindow();
-        if(!window.isMaximized()) {
-          window.maximize();
-        } else {
-          window.unmaximize()
-        }
-      });
-
       //Click handler on minimize button
       $("#pushButtonMinimize").click(function() {
         var window = remote.getCurrentWindow();
         window.minimize();
       });
 
-      //Click handler on button "Select video"
-      $("#button-select").click(function() {
+      //Click handler on button "Add video"
+      $("#button-add").click(function() {
         let options = {
           title : "Select a video file",
           properties:["openFile"]
