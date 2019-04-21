@@ -1,8 +1,10 @@
 <link href="css/foundation.css" rel="stylesheet" type="text/css" />
+<link href="css/ghpages-materialize.css" rel="stylesheet" type="text/css" />
 <link href="css/index.css" rel="stylesheet" type="text/css" />
 <script>
   window.$ = window.jQuery = require('jquery');
 </script>
+<script src="js/wave-effects.js"></script>
 <body>
   <!-------------- Title Bar -------------->
   <div id="titleBar">
@@ -14,8 +16,8 @@
 			<select id="display-select" width="20%" multiple>
 			</select>
 			<br />
-			<input type="button" id="button-add" value="Add video" />
-			<input type="button" id="button-remove" value="Remove" />
+			<button type="button" id="button-add" class="btn btn-default waves-effect waves-light">Add</button>
+			<button type="button" id="button-remove" class="btn btn-default waves-effect waves-light">Remove</button>
 			<fieldset id="select-mode">
 				<legend>Mode</legend>
 				<div>
@@ -31,8 +33,8 @@
 					<label for="extract">Extract images</label>
 				</div>
 			</fieldset>
-			<input type="button" id="start-comparison" value="Start" />
-			<input type="button" id="stop-comparison" value="Stop" disabled/><br />
+			<button type="button" id="start-comparison" class="btn btn-default waves-effect waves-light">Start</button>
+			<button type="button" id="stop-comparison" class="btn btn-default waves-effect waves-light" disabled>Stop</button>
 			<input type="text" id="result-comparison" readonly />
     </div>
   </div>
