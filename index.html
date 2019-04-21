@@ -33,6 +33,8 @@
 					<label for="extract">Extract images</label>
 				</div>
 			</fieldset>
+			<input type="text" id="accurate-ss" value="00:00:03.00">
+			<input type="text" id="accurate-to" value="00:00:05.00">
 			<button type="button" id="start-comparison" class="btn btn-default waves-effect waves-light">Start</button>
 			<button type="button" id="stop-comparison" class="btn btn-default waves-effect waves-light" disabled>Stop</button>
 			<input type="text" id="result-comparison" readonly />
@@ -114,6 +116,16 @@
 					$('#display-select').find(":selected").remove();
 				}
 			});
+
+			$("#accurate").on("change", function() {
+				if(!$("#accurate").is(":checked")) {
+					$("#accurate-ss").hide();
+					$("#accurate-to").hide();
+				} else {
+					$("#accurate-ss").show();
+					$("#accurate-to").show();
+				}
+			});
 			
 			//Click handler on button "Start"
 			$("#start-comparison").click(function() {
@@ -123,7 +135,7 @@
 				}	if($("#extract").is(":checked")) {
 					cmd += " --extract=yes";
 				} if($("#accurate").is(":checked")) {
-					cmd += " --mode=accurate";
+					cmd += " --mode=accurate -ss " + $("#accurate-ss").val() + " -to " + $("#accurate-to").val();
 				}
 				$("#stop-comparison").prop('disabled', false);
 				$("#start-comparison").prop('disabled', true);
@@ -131,9 +143,15 @@
 				child = exec(cmd, function(error, stdout, stderr) {
 						$("#stop-comparison").prop('disabled', true);
 						$("#start-comparison").prop('disabled', false);
-						if(error == null) {
+						if(pathFiles.length < 2) {
+								$("#result-comparison").val('Error: Please select two videos');
+						} else if(!$("#psnr").is(":checked") && !$("#extract").is(":checked")) {
+								$("#result-comparison").val('Error: Please select a mode');
+						} else if(error == null && parseInt(stdout.split(": ")[1]) != NaN) {
 							$("#result-comparison").val('Number of differences: ' + parseInt(stdout.split(": ")[1]));
-						} else if (error !== null) {
+						} else if(error == null && parseInt(stdout.split(": ")[1]) == NaN) {
+							$("#result-comparison").val('Unknown error');
+						} else if(error !== null) {
 							console.log('exec error: ' + error);
 							$("#result-comparison").val('Failure');
 						}

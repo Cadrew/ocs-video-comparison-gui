@@ -31,7 +31,9 @@ body {
 #stop-comparison,
 #result-comparison,
 #select-mode,
-#display-select {
+#display-select,
+#accurate-ss,
+#accurate-to {
   position: absolute;
 }
 #display-select {
@@ -82,6 +84,20 @@ body {
   width: 100%;
   border: none;
   background: lavender;
+}
+#accurate-ss {
+  display: none;
+  top: 150px;
+  left: 150px;
+  width: 75px;
+  height: 30px;
+}
+#accurate-to {
+  display: none;
+  top: 150px;
+  left: 250px;
+  width: 75px;
+  height: 30px;
 }
 
 .btn {
