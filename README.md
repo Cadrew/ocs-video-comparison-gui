@@ -2,7 +2,7 @@
 
 An user interface for the OCS Video Comparison project [here](https://github.com/Cadrew/OCS-Video-Comparison).
 
-![OCS Video Comparison GUI](https://cdn.discordapp.com/attachments/268432645577244673/570859310775533568/unknown.png)
+![OCS Video Comparison GUI](https://puu.sh/Dl6iZ/55ac5a5b3c.png)
 
 # How to build it yourself
 

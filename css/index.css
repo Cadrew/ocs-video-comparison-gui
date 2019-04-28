@@ -25,16 +25,32 @@
 body {
   overflow: hidden;
 }
+#accurate-content,
+#report-content,
+#extract-content {
+  display: none;
+}
 #button-add,
 #button-remove,
 #start-comparison,
 #stop-comparison,
 #result-comparison,
 #select-mode,
+#select-extract,
 #display-select,
 #accurate-ss,
-#accurate-to {
+#accurate-to,
+#file-report,
+#extract-ss,
+#extract-to,
+#standard {
   position: absolute;
+}
+#standard {
+  top: 5px;
+  right: 10px;
+  width: 60px;
+  text-align: right;
 }
 #display-select {
   display: inline-block;
@@ -64,15 +80,21 @@ body {
   right: 5px;
   height: 100;
 }
-#start-comparison {
+#select-extract {
   top: 220px;
+  left: 5px;
+  right: 5px;
+  height: 100;
+}
+#start-comparison {
+  bottom: 30px;
   left: 140px;
   width: 100px;
   height: 30px;
   line-height: 0px;
 }
 #stop-comparison {
-  top: 220px;
+  bottom: 30px;
   left: 260px;
   width: 100px;
   height: 30px;
@@ -86,15 +108,30 @@ body {
   background: lavender;
 }
 #accurate-ss {
-  display: none;
-  top: 150px;
+  top: 50px;
   left: 150px;
   width: 75px;
   height: 30px;
 }
 #accurate-to {
-  display: none;
-  top: 150px;
+  top: 50px;
+  left: 250px;
+  width: 75px;
+  height: 30px;
+}
+#file-report {
+  top: 55px;
+  left: 120px;
+  height: 30px;
+}
+#extract-ss {
+  top: 50px;
+  left: 150px;
+  width: 75px;
+  height: 30px;
+}
+#extract-to {
+  top: 50px;
   left: 250px;
   width: 75px;
   height: 30px;
