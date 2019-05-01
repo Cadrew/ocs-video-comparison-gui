@@ -43,7 +43,8 @@ body {
 #file-report,
 #extract-ss,
 #extract-to,
-#standard {
+#standard,
+#compression {
   position: absolute;
 }
 #standard {
@@ -135,6 +136,11 @@ body {
   left: 250px;
   width: 75px;
   height: 30px;
+}
+#compression {
+  top: 30px;
+  right: 20px;
+  width: 200px;
 }
 
 .btn {
