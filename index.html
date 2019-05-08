@@ -48,12 +48,17 @@
 					<label for="extract-all">All</label>
 					<input type="radio" id="extract-sample" name="extract" value="extract-sample">
 					<label for="extract-sample">Sample</label>
+					<input type="radio" id="extract-report" name="extract" value="extract-report" checked>
+					<label for="extract-report">Report</label>
 					<input type="radio" id="extract-none" name="extract" value="extract-none" checked>
 					<label for="extract-none">None</label>
 				</div>
-				<div id="extract-content">
+				<div id="extract-sample-content">
 					<input type="text" id="extract-ss" value="00:00:00.00">
 					<input type="text" id="extract-to" value="00:00:00.00">
+				</div>
+				<div id="extract-report-content">
+					<input type="file" id="extract-file-report">
 				</div>
 				<div id="compression"></div>
 			</fieldset>
@@ -64,58 +69,58 @@
   </div>
 
   <script>
-    'use strict'
-    const remote = require('electron').remote;
-    const electron = require('electron');
-	var exec = require('child_process').exec;
-	var psTree = require('ps-tree');
-    const dialog = remote.dialog;
-	var fs = require('fs');
-	var child = null;
-	
-	var kill = function (pid, signal, callback) {
-		signal = signal || 'SIGKILL';
-		callback = callback || function () {};
-		var killTree = true;
-		if(killTree) {
-			psTree(pid, function (err, children) {
-				[pid].concat(
-					children.map(function (p) {
-						return p.PID;
-					})
-				).forEach(function (tpid) {
-					try { process.kill(tpid, signal) }
-					catch (ex) { }
+		'use strict'
+		const remote = require('electron').remote;
+		const electron = require('electron');
+		var exec = require('child_process').exec;
+		var psTree = require('ps-tree');
+		const dialog = remote.dialog;
+		var fs = require('fs');
+		var child = null;
+		
+		var kill = function (pid, signal, callback) {
+			signal = signal || 'SIGKILL';
+			callback = callback || function () {};
+			var killTree = true;
+			if(killTree) {
+				psTree(pid, function (err, children) {
+					[pid].concat(
+						children.map(function (p) {
+							return p.PID;
+						})
+					).forEach(function (tpid) {
+						try { process.kill(tpid, signal) }
+						catch (ex) { }
+					});
+					callback();
 				});
+			} else {
+				try { process.kill(pid, signal) }
+				catch (ex) { }
 				callback();
+			}
+		};
+
+		$(function() {
+			var pathFiles = [];
+
+			var slider = document.getElementById('compression');
+			noUiSlider.create(slider, {
+				start: [0],
+				connect: true,
+				step: 0.1,
+				orientation: 'horizontal', // 'horizontal' or 'vertical'
+				range: {
+					'min': 0,
+					'max': 10
+				},
+				format: wNumb({
+					decimals: 0
+				})
 			});
-		} else {
-			try { process.kill(pid, signal) }
-			catch (ex) { }
-			callback();
-		}
-	};
 
-    $(function(){
-      	var pathFiles = [];
-
-	  	var slider = document.getElementById('compression');
-		noUiSlider.create(slider, {
-			start: [0],
-			connect: true,
-			step: 0.1,
-			orientation: 'horizontal', // 'horizontal' or 'vertical'
-			range: {
-				'min': 0,
-				'max': 10
-			},
-			format: wNumb({
-				decimals: 0
-			})
-		});
-
-      //Click handler on close button
-      	$("#pushButtonClose").click(function() {
+			//Click handler on close button
+			$("#pushButtonClose").click(function() {
 				if(child != null) {
 					kill(child.pid, 'SIGKILL', function() {
 						var window = remote.getCurrentWindow();
@@ -123,150 +128,164 @@
 					});
 				} else {
 					var window = remote.getCurrentWindow();
-        	window.close();
+					window.close();
 				}        
-     	});
-
-      	//Click handler on minimize button
-    	$("#pushButtonMinimize").click(function() {
-        	var window = remote.getCurrentWindow();
-        	window.minimize();
-      	});
-
-      	//Click handler on button "Add video"
-      	$("#button-add").click(function() {
-			let options = {
-				title : "Select a video file",
-				properties:["openFile"]
-			};
-        	//Synchronous
-        	let file = dialog.showOpenDialog(options);
-			pathFiles.push(file[0]);
-			$("#display-select").append("<option>" + file[0] + "</option>");
-		});
-			
-		//Click handler on button "Remove"
-		$("#button-remove").click(function() {
-			var index = $.inArray($('#display-select').find(":selected").text(), pathFiles);
-			if(index > -1) {
-				pathFiles.splice(index, 1);
-				$('#display-select').find(":selected").remove();
-			}
-		});
-
-		$("#accurate").on("change", function() {
-			if($("#accurate").is(":checked")) {
-				$("#report-content").hide();
-				$("#accurate-content").show();
-				$("#extract-none").prop("checked", true);
-				$("#extract-none").trigger("change");
-			}
-		});
-
-		$("#report").on("change", function() {
-			if($("#report").is(":checked")) {
-				$("#accurate-content").hide();
-				$("#report-content").show();
-				$("#extract-none").prop("checked", true);
-				$("#extract-none").trigger("change");
-			}
-		});
-
-		$("#none").on("change", function() {
-			if($("#none").is(":checked")) {
-				$("#accurate-content").hide();
-				$("#report-content").hide();
-			}
-		});
-
-		$("#basic").on("change", function() {
-			if($("#basic").is(":checked")) {
-				$("#accurate-content").hide();
-				$("#report-content").hide();
-				$("#extract-none").prop("checked", true);
-				$("#extract-none").trigger("change");
-			}
-		});
-
-		$("#extract-all").on("change", function() {
-			if($("#extract-all").is(":checked")) {
-				$("#extract-content").hide();
-				$("#none").prop("checked", true);
-				$("#none").trigger("change");
-			}
-		});
-
-		$("#extract-sample").on("change", function() {
-			if($("#extract-sample").is(":checked")) {
-				$("#extract-content").show();
-				$("#none").prop("checked", true);
-				$("#none").trigger("change");
-			}
-		});
-
-		$("#extract-none").on("change", function() {
-			if($("#extract-none").is(":checked")) {
-				$("#extract-content").hide();
-			}
-		});
-
-		//Click handler on button "Start"
-		$("#start-comparison").click(function() {
-			var cmd = 'python ocs_comparison.py "' + pathFiles[0] + '" "' + pathFiles[1] + '"';
-			if($("#extract-all").is(":checked")) {
-				cmd += " --mode=extract --quality=" + $("#compression")[0].textContent;
-			} else if($("#extract-sample").is(":checked")) {
-				cmd += " --mode=extract -ss " + $("#extract-ss").val() + " -to " + $("#extract-to").val() + " --quality=" + $("#compression")[0].textContent;
-			} else if($("#basic").is(":checked")) {
-				cmd += " --mode=basic";
-			} else if($("#accurate").is(":checked")) {
-				cmd += " --mode=accurate -ss " + $("#accurate-ss").val() + " -to " + $("#accurate-to").val();
-			} else if($("#report").is(":checked")) {
-				cmd += ' "' + document.getElementById("file-report").files[0].path + '" --mode=report';
-			} else if($("#none").is(":checked")) {
-				cmd += " --psnr=no";
-			}
-			cmd += " --standard=" + $("#standard").val();
-			console.log(cmd);
-			$("#stop-comparison").prop('disabled', false);
-			$("#start-comparison").prop('disabled', true);
-			$("#result-comparison").val("In progress...");
-			child = exec(cmd, function(error, stdout, stderr) {
-					$("#stop-comparison").prop('disabled', true);
-					$("#start-comparison").prop('disabled', false);
-					if(pathFiles.length < 2) {
-							$("#result-comparison").val('Error: Please select two videos');
-					} else if($("#none").is(":checked") && $("#extract-none").is(":checked")) {
-							$("#result-comparison").val('Error: Please select a mode');
-					} else if(error == null && parseInt(stdout.split(": ")[1]) != NaN) {
-						if(!$("#extract-none").is(":checked")) {
-							$("#result-comparison").val('Done');
-						} else {
-							$("#result-comparison").val('Number of differences: ' + parseInt(stdout.split(": ")[1]));
-						}
-					} else if(parseInt(stdout.split(": ")[1]) == NaN) {
-						if(!$("#extract-none").is(":checked")) {
-							$("#result-comparison").val('Done');
-						} else {
-							$("#result-comparison").val('Unknown error');
-						}
-					} else if(error !== null) {
-						console.log('exec error: ' + error);
-						$("#result-comparison").val('Failed');
-					}
 			});
-		});
 
-		//Click handler on button "Stop"
-		$("#stop-comparison").click(function() {
-			if(child != null) {
-				kill(child.pid);
-			}				
-			$("#stop-comparison").prop('disabled', true);
-			$("#start-comparison").prop('disabled', false);
-		});
+				//Click handler on minimize button
+			$("#pushButtonMinimize").click(function() {
+				var window = remote.getCurrentWindow();
+				window.minimize();
+			});
 
-	});
+				//Click handler on button "Add video"
+			$("#button-add").click(function() {
+				let options = {
+					title : "Select a video file",
+					properties:["openFile"]
+				};
+						//Synchronous
+				let file = dialog.showOpenDialog(options);
+				pathFiles.push(file[0]);
+				$("#display-select").append("<option>" + file[0] + "</option>");
+			});
+				
+			//Click handler on button "Remove"
+			$("#button-remove").click(function() {
+				var index = $.inArray($('#display-select').find(":selected").text(), pathFiles);
+				if(index > -1) {
+					pathFiles.splice(index, 1);
+					$('#display-select').find(":selected").remove();
+				}
+			});
+
+			$("#accurate").on("change", function() {
+				if($("#accurate").is(":checked")) {
+					$("#report-content").hide();
+					$("#accurate-content").show();
+					$("#extract-none").prop("checked", true);
+					$("#extract-none").trigger("change");
+				}
+			});
+
+			$("#report").on("change", function() {
+				if($("#report").is(":checked")) {
+					$("#accurate-content").hide();
+					$("#report-content").show();
+					$("#extract-none").prop("checked", true);
+					$("#extract-none").trigger("change");
+				}
+			});
+
+			$("#none").on("change", function() {
+				if($("#none").is(":checked")) {
+					$("#accurate-content").hide();
+					$("#report-content").hide();
+				}
+			});
+
+			$("#basic").on("change", function() {
+				if($("#basic").is(":checked")) {
+					$("#accurate-content").hide();
+					$("#report-content").hide();
+					$("#extract-none").prop("checked", true);
+					$("#extract-none").trigger("change");
+				}
+			});
+
+			$("#extract-all").on("change", function() {
+				if($("#extract-all").is(":checked")) {
+					$("#extract-sample-content").hide();
+					$("#extract-report-content").hide();
+					$("#none").prop("checked", true);
+					$("#none").trigger("change");
+				}
+			});
+
+			$("#extract-sample").on("change", function() {
+				if($("#extract-sample").is(":checked")) {
+					$("#extract-sample-content").show();
+					$("#extract-report-content").hide();
+					$("#none").prop("checked", true);
+					$("#none").trigger("change");
+				}
+			});
+
+			$("#extract-report").on("change", function() {
+				if($("#extract-report").is(":checked")) {
+					$("#extract-sample-content").hide();
+					$("#extract-report-content").show();
+					$("#none").prop("checked", true);
+					$("#none").trigger("change");
+				}
+			});
+
+			$("#extract-none").on("change", function() {
+				if($("#extract-none").is(":checked")) {
+					$("#extract-sample-content").hide();
+					$("#extract-report-content").hide();
+				}
+			});
+
+			//Click handler on button "Start"
+			$("#start-comparison").click(function() {
+				var cmd = 'python ocs_comparison.py "' + pathFiles[0] + '" "' + pathFiles[1] + '"';
+				if($("#extract-all").is(":checked")) {
+					cmd += " --mode=extract --quality=" + $("#compression")[0].textContent;
+				} else if($("#extract-sample").is(":checked")) {
+					cmd += " --mode=extract -ss " + $("#extract-ss").val() + " -to " + $("#extract-to").val() + " --quality=" + $("#compression")[0].textContent;
+				} else if($("#extract-report").is(":checked")) {
+					cmd += ' "' + document.getElementById("extract-file-report").files[0].path + '" --mode=extract-report --quality=' + $("#compression")[0].textContent;
+				} else if($("#basic").is(":checked")) {
+					cmd += " --mode=basic";
+				} else if($("#accurate").is(":checked")) {
+					cmd += " --mode=accurate -ss " + $("#accurate-ss").val() + " -to " + $("#accurate-to").val();
+				} else if($("#report").is(":checked")) {
+					cmd += ' "' + document.getElementById("file-report").files[0].path + '" --mode=report';
+				} else if($("#none").is(":checked")) {
+					cmd += " --psnr=no";
+				}
+				cmd += " --standard=" + $("#standard").val();
+				console.log(cmd);
+				$("#stop-comparison").prop('disabled', false);
+				$("#start-comparison").prop('disabled', true);
+				$("#result-comparison").val("In progress...");
+				child = exec(cmd, function(error, stdout, stderr) {
+						$("#stop-comparison").prop('disabled', true);
+						$("#start-comparison").prop('disabled', false);
+						if(pathFiles.length < 2) {
+								$("#result-comparison").val('Error: Please select two videos');
+						} else if($("#none").is(":checked") && $("#extract-none").is(":checked")) {
+								$("#result-comparison").val('Error: Please select a mode');
+						} else if(error == null && parseInt(stdout.split(": ")[1]) != NaN) {
+							if(!$("#extract-none").is(":checked")) {
+								$("#result-comparison").val('Done');
+							} else {
+								$("#result-comparison").val('Number of differences: ' + parseInt(stdout.split(": ")[1]));
+							}
+						} else if(parseInt(stdout.split(": ")[1]) == NaN) {
+							if(!$("#extract-none").is(":checked")) {
+								$("#result-comparison").val('Done');
+							} else {
+								$("#result-comparison").val('Unknown error');
+							}
+						} else if(error !== null) {
+							console.log('exec error: ' + error);
+							$("#result-comparison").val('Failed');
+						}
+				});
+			});
+
+			//Click handler on button "Stop"
+			$("#stop-comparison").click(function() {
+				if(child != null) {
+					kill(child.pid);
+				}				
+				$("#stop-comparison").prop('disabled', true);
+				$("#start-comparison").prop('disabled', false);
+			});
+
+		});
 		
 		document.onkeydown = keydown; 
 

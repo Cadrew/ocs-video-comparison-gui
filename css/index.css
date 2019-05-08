@@ -27,7 +27,8 @@ body {
 }
 #accurate-content,
 #report-content,
-#extract-content {
+#extract-sample-content,
+#extract-report-content {
   display: none;
 }
 #button-add,
@@ -41,6 +42,7 @@ body {
 #accurate-ss,
 #accurate-to,
 #file-report,
+#extract-file-report,
 #extract-ss,
 #extract-to,
 #standard,
@@ -125,6 +127,11 @@ body {
   left: 120px;
   height: 30px;
 }
+#extract-file-report {
+  top: 55px;
+  left: 120px;
+  height: 30px;
+}
 #extract-ss {
   top: 50px;
   left: 150px;
@@ -140,7 +147,7 @@ body {
 #compression {
   top: 30px;
   right: 20px;
-  width: 200px;
+  width: 150px;
 }
 
 .btn {
