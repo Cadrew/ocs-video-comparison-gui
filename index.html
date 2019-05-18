@@ -61,6 +61,10 @@
 					<input type="file" id="extract-file-report">
 				</div>
 				<div id="compression"></div>
+				<div id="keep">
+					<input type="checkbox" id="extract-keep" name="extract-keep" checked>
+					<label for="extract-keep">Keep</label>
+				</div>
 			</fieldset>
 			<button type="button" id="start-comparison" class="btn btn-default waves-effect waves-light">Start</button>
 			<button type="button" id="stop-comparison" class="btn btn-default waves-effect waves-light" disabled>Stop</button>
@@ -230,12 +234,13 @@
 			//Click handler on button "Start"
 			$("#start-comparison").click(function() {
 				var cmd = 'python ocs_comparison.py "' + pathFiles[0] + '" "' + pathFiles[1] + '"';
+				var keep = ($("#extract-keep").is(":checked") ? "yes" : "no");
 				if($("#extract-all").is(":checked")) {
-					cmd += " --mode=extract --quality=" + $("#compression")[0].textContent;
+					cmd += " --mode=extract --quality=" + $("#compression")[0].textContent + " --keep=" + keep;
 				} else if($("#extract-sample").is(":checked")) {
-					cmd += " --mode=extract -ss " + $("#extract-ss").val() + " -to " + $("#extract-to").val() + " --quality=" + $("#compression")[0].textContent;
+					cmd += " --mode=extract -ss " + $("#extract-ss").val() + " -to " + $("#extract-to").val() + " --quality=" + $("#compression")[0].textContent + " --keep=" + keep;
 				} else if($("#extract-report").is(":checked")) {
-					cmd += ' "' + document.getElementById("extract-file-report").files[0].path + '" --mode=extract-report --quality=' + $("#compression")[0].textContent;
+					cmd += ' "' + document.getElementById("extract-file-report").files[0].path + '" --mode=extract-report --quality=' + $("#compression")[0].textContent + " --keep=" + keep;
 				} else if($("#basic").is(":checked")) {
 					cmd += " --mode=basic";
 				} else if($("#accurate").is(":checked")) {

@@ -46,7 +46,8 @@ body {
 #extract-ss,
 #extract-to,
 #standard,
-#compression {
+#compression,
+#keep {
   position: absolute;
 }
 #standard {
@@ -148,6 +149,10 @@ body {
   top: 30px;
   right: 20px;
   width: 150px;
+}
+#keep {
+  top: 40px;
+  right: 20px;
 }
 
 .btn {
