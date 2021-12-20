@@ -2,6 +2,8 @@
 
 An user interface for the OCS Video Comparison project [here](https://github.com/Cadrew/OCS-Video-Comparison).
 
+![image](https://user-images.githubusercontent.com/25923935/146753086-e0b1d254-419d-4704-9bd1-c14302682d53.png)
+
 # How to build
 
 This utility is compatible with Windows, Linux and MacOS.
