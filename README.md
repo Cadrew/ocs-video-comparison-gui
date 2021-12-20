@@ -2,9 +2,7 @@
 
 An user interface for the OCS Video Comparison project [here](https://github.com/Cadrew/OCS-Video-Comparison).
 
-![OCS Video Comparison GUI](http://puu.sh/Dmljv/b74d11876d.png)
-
-# How to build it yourself
+# How to build
 
 This utility is compatible with Windows, Linux and MacOS.
 You'll need [NodeJS](https://nodejs.org/en/download/) and [Electron](https://electronjs.org/docs/tutorial/installation) to build it.
